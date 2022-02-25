@@ -10,7 +10,13 @@ class Perceptron:
     Adaline perceptron
     """
 
-    def __init__(self, dim: int, lr: int = 0.1, bias: bool = True, random_init: bool = True):
+    def __init__(
+        self,
+        dim: int,
+        lr: int = 0.1,
+        bias: bool = True,
+        random_init: bool = True,
+    ):
         self.dim = dim
         self.w = np.random.random(dim + 1) if random_init else np.zeros(dim + 1)
         self.bias = float(bias)
