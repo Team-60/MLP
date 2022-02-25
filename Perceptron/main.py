@@ -2,11 +2,11 @@ import numpy as np
 from perceptron.pta import PTA
 import matplotlib.pyplot as plt
 
-OUTPUT_DIR = "outputs/pta"
+OUTPUT_DIR = "outputs"
 
 # INPUTS
 X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-y = np.array([1, 0, 0, 1])
+y = np.array([0, 0, 0, 1])
 
 
 def save_plot(iter, w):
