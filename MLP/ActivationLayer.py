@@ -1,5 +1,5 @@
 
-class Activation:
+class ActivationLayer:
 
     def __init__(self, fn, fn_derivative):
         self.fn = fn

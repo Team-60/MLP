@@ -1,8 +1,8 @@
 import numpy as np
-import Loss
+import ActivationFn
 from Optim import SGD
 from Linear import Linear
-from Activation import Activation
+from ActivationLayer import ActivationLayer
 
 class NN:
 
@@ -39,13 +39,13 @@ if __name__ == "__main__":
     nn = NN()
     nn.add_layers(
         Linear(10, 20),
-        Activation(Loss.tanh, Loss.tanh_derivative),
+        ActivationLayer(ActivationFn.tanh, ActivationFn.tanh_derivative),
         Linear(20, 30),
-        Activation(Loss.tanh, Loss.tanh_derivative),
+        ActivationLayer(ActivationFn.tanh, ActivationFn.tanh_derivative),
         Linear(30, 10),
-        Activation(Loss.tanh, Loss.tanh_derivative),
+        ActivationLayer(ActivationFn.tanh, ActivationFn.tanh_derivative),
         Linear(10, 1),
-        Activation(Loss.sigmoid, Loss.sigmoid_derivative),
+        ActivationLayer(ActivationFn.sigmoid, ActivationFn.sigmoid_derivative),
     )
 
     x = np.zeros((10, 1))
