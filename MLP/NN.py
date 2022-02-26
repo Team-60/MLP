@@ -42,17 +42,15 @@ if __name__ == "__main__":
     nn.add_layers(
         Linear(10, 20),
         ActivationLayer(ActivationFn.tanh, ActivationFn.tanh_derivative),
-        Linear(20, 30),
-        ActivationLayer(ActivationFn.tanh, ActivationFn.tanh_derivative),
-        Linear(30, 10),
+        Linear(20, 10),
         ActivationLayer(ActivationFn.tanh, ActivationFn.tanh_derivative),
         Linear(10, 1),
         ActivationLayer(ActivationFn.sigmoid, ActivationFn.sigmoid_derivative),
     )
 
-    x = np.zeros((10, 1))
+    x = np.random.rand(10, 1)
     y = nn.forward(x)
     y_true = np.ones((1, 1))
-    first_grad = nn.backward(y_true - y)
+    first_grad = nn.backward(2 * (y_true - y))
     sgd = SGD(0.01)
     nn.step(sgd)
