@@ -9,6 +9,9 @@ class NN:
     def __init__(self):
         self.layers = []
 
+    def __call__(self, x):
+        return self.forward(x)
+
     def add_layers(self, *args):
         for arg in args:
             self.layers.append(arg)
@@ -22,7 +25,6 @@ class NN:
         for layer in self.layers:
             _x = layer.forward(_x)
         return _x
-
 
     def backward(self, error):
         _error = error.copy()
