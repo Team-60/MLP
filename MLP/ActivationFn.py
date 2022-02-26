@@ -5,7 +5,7 @@ import time
 def sigmoid(x):
     # Prevent overflow.
     x = np.clip(x, -500, 500)
-    return 1/(1 + math.e ** x)
+    return 1/(1 + math.e ** (-x))
 
 def sigmoid_derivative(x):
     return sigmoid(x) * (1 - sigmoid(x))
