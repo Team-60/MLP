@@ -23,7 +23,7 @@ def split_label(df):
 
     X = np.array(df)
     # TODO : std only on train
-    X = (X - np.mean(X))/np.std(X)
+    X = X/255
     y = np.array(label_dummies)
     return X, y
 

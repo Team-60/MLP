@@ -1,5 +1,4 @@
 import numpy as np
-import time
 
 class Linear:
 
@@ -13,9 +12,8 @@ class Linear:
 
     def forward(self, layer_input):
         # shapes : (in_features, 1)  -> (out_features, 1)
-        self.last_input = layer_input
+        self.last_input = layer_input.copy()
         output = (self.W.T @ layer_input) + self.b
-        #print(layer_input)
         return output
     
     def backward(self, nextl_gradients):

@@ -20,10 +20,10 @@ def train(args, model, dataset):
             labels = labels.reshape(10, 1)
             output = model(image)
 
-            loss = Loss.mse(output, labels)
+            loss = Loss.BCE(output, labels)
             epoch_loss += loss
 
-            loss_derivative = Loss.mse_derivative(output, labels)
+            loss_derivative = Loss.BCE_derivative(output, labels)
 
             model.backward(loss_derivative)
             model.step(optimizer)
