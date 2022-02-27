@@ -4,7 +4,7 @@ import Loss
 import Optim
 import Loss
 
-def train(args, model, dataset):
+def train(args, model, dataset, test_data):
 
     np.random.seed(42)
     X_train, y_train = dataset
@@ -36,10 +36,10 @@ def train(args, model, dataset):
         total = 0
         for idx, image in enumerate(X_train):
 
+            labels = y_train[idx]
             image = image.reshape(784, 1)
             labels = labels.reshape(10, 1)
             output = model(image)
-            labels = y_train[idx]
 
             prediction = np.argmax(output)
             true = np.argmax(labels)
@@ -47,5 +47,27 @@ def train(args, model, dataset):
             correct += (prediction == true)
             total += 1
 
+        test(args, model, test_data)
         print('Epoch {} Finished with Total Loss : {}, Accuracy {:.2f}'.format(epoch, epoch_loss, correct/total))
+
+
+def test(args, model, dataset):
+
+    X_test, y_test = dataset
+    correct = 0
+    total = 0
+    for idx, image in enumerate(X_test):
+
+        labels = y_test[idx]
+        image = image.reshape(784, 1)
+        labels = labels.reshape(10, 1)
+        output = model(image)
+
+        prediction = np.argmax(output)
+        true = np.argmax(labels)
+
+        correct += (prediction == true)
+        total += 1
+
+    print('Finished Test Accuracy {:.2f}'.format(correct/total))
 

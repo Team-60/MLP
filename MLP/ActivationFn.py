@@ -15,11 +15,15 @@ def tanh_derivative(x):
     return 1 - tanh(x) ** 2
 
 def relu(x):
-    return np.maximum(0, x)
+    x = np.where(x < 0, 0.1 * x, x)
+    x = np.where(x >= 0, x, x)
+    return x
 
 def relu_derivative(x):
     # TODO : leaky relu?
-    return (x > 0) + 0
+    x = np.where(x < 0, 0.1, x)
+    x = np.where(x >= 0, 1, x)
+    return x
 
 def softmax(x):
     exps = np.exp(x - x.max())
