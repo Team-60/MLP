@@ -1,4 +1,5 @@
 import numpy as np
+from copy import deepcopy
 
 class Linear:
 
@@ -6,20 +7,19 @@ class Linear:
         self.in_features = in_features
         self.out_features = out_features
 
-        # TODO : random initialization
         self.W = np.random.rand(self.in_features, self.out_features)
         self.b = np.random.rand(out_features, 1)
 
     def forward(self, layer_input):
         # shapes : (in_features, 1)  -> (out_features, 1)
-        self.last_input = layer_input.copy()
+        self.last_input = deepcopy(layer_input)
         output = (self.W.T @ layer_input) + self.b
         return output
     
     def backward(self, nextl_gradients):
         # shapes : (out_features, 1) -> (input_features, 1)
         self.weight_grads = self.last_input @ nextl_gradients.T
-        self.bias_grads = nextl_gradients.copy()
+        self.bias_grads = deepcopy(nextl_gradients)
 
         gradients_to_prop = self.W @ nextl_gradients
         return gradients_to_prop

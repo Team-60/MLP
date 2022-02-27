@@ -20,10 +20,10 @@ def train(args, model, dataset):
             labels = labels.reshape(10, 1)
             output = model(image)
 
-            loss = Loss.mse(output, labels)
+            loss = Loss.cross_entropy(labels, output)
             epoch_loss += loss
 
-            loss_derivative = Loss.mse_derivative(output, labels)
+            loss_derivative = Loss.cross_entropy_derivative(labels, output)
 
             model.backward(loss_derivative)
             model.step(optimizer)
@@ -32,5 +32,20 @@ def train(args, model, dataset):
                 print('Train Epoch: {} [{}/{}]\tLoss: {:0.6f}'.format(
                     epoch, idx, len(X_train), loss))
 
-        print('Epoch {} Finished with Total Loss : {}'.format(epoch, epoch_loss))
+        correct = 0
+        total = 0
+        for idx, image in enumerate(X_train):
+
+            image = image.reshape(784, 1)
+            labels = labels.reshape(10, 1)
+            output = model(image)
+            labels = y_train[idx]
+
+            prediction = np.argmax(output)
+            true = np.argmax(labels)
+
+            correct += (prediction == true)
+            total += 1
+
+        print('Epoch {} Finished with Total Loss : {}, Accuracy {:.2f}'.format(epoch, epoch_loss, correct/total))
 

@@ -1,5 +1,6 @@
 import numpy as np
 import ActivationFn
+from copy import deepcopy
 from Optim import SGD
 from Linear import Linear
 from ActivationLayer import ActivationLayer
@@ -21,13 +22,13 @@ class NN:
         self.optim_derivative = optim_derivative
 
     def forward(self, x):
-        _x = x.copy()
+        _x = deepcopy(x)
         for layer in self.layers:
             _x = layer.forward(_x)
         return _x
 
     def backward(self, error):
-        _error = error.copy()
+        _error = deepcopy(error)
         for layer in reversed(self.layers):
             _error = layer.backward(_error)
         return _error

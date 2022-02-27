@@ -3,9 +3,7 @@ import math
 import time
 
 def sigmoid(x):
-    # Prevent overflow.
-    x = np.clip(x, -500, 500)
-    return 1/(1 + math.e ** (-x))
+    return 1/(1 + np.exp(-x))
 
 def sigmoid_derivative(x):
     return sigmoid(x) * (1 - sigmoid(x))
@@ -23,3 +21,9 @@ def relu_derivative(x):
     # TODO : leaky relu?
     return (x > 0) + 0
 
+def softmax(x):
+    exps = np.exp(x - x.max())
+    return exps / np.sum(exps, axis=0)
+
+def softmax_derivative(x):
+    return np.ones(x.shape)
