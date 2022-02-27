@@ -9,28 +9,59 @@ def train(args, model, dataset, test_data):
     np.random.seed(42)
     X_train, y_train = dataset
 
-    optimizer = Optim.SGD(learning_rate=args.learning_rate)
+    #optimizer = Optim.SGD(learning_rate=args.learning_rate)
+    #model.add_optimizer(optimizer, 'SGD')
+
+    #optimizer = Optim.NAG(learning_rate=args.learning_rate, beta=0.9)
+    #model.add_optimizer(optimizer, 'NAG')
+
+    #optimizer = Optim.AdaGrad(learning_rate=args.learning_rate)
+    #model.add_optimizer(optimizer, 'AdaGrad')
+
+    #optimizer = Optim.RMSProp(learning_rate=args.learning_rate, lamda=0.9)
+    #model.add_optimizer(optimizer, 'RMSProp')
+
+    optimizer = Optim.Adam(learning_rate=args.learning_rate, beta=0.9, lamda=0.9)
+    model.add_optimizer(optimizer, 'Adam')
 
     for epoch in range(args.num_epochs):
         epoch_loss = 0
-        for idx, image in enumerate(X_train):
 
-            labels = y_train[idx]
-            image = image.reshape(784, 1)
-            labels = labels.reshape(10, 1)
-            output = model(image)
+        permutation = np.random.permutation(X_train.shape[0])
+        x_train_shuffled = X_train[permutation]
+        y_train_shuffled = y_train[permutation]
 
-            loss = Loss.cross_entropy(labels, output)
-            epoch_loss += loss
+        for st_idx in range(0, len(X_train), args.batch_size):
 
-            loss_derivative = Loss.cross_entropy_derivative(labels, output)
+            batch_loss = 0
+            batch_loss_derivative = 0
+            for idx in range(st_idx, min(len(X_train), st_idx + args.batch_size)):
 
-            model.backward(loss_derivative)
-            model.step(optimizer)
+                labels = y_train_shuffled[idx]
+                image = x_train_shuffled[idx]
 
-            if idx % args.display_interval == 0:
-                print('Train Epoch: {} [{}/{}]\tLoss: {:0.6f}'.format(
-                    epoch, idx, len(X_train), loss))
+                image = image.reshape(784, 1)
+                labels = labels.reshape(10, 1)
+
+                output = model(image)
+
+                loss = Loss.cross_entropy(labels, output)
+                batch_loss += loss
+            
+                loss_derivative = Loss.cross_entropy_derivative(labels, output)
+                batch_loss_derivative += loss_derivative
+
+            batch_loss /= args.batch_size
+            batch_loss_derivative /= args.batch_size
+
+            epoch_loss += batch_loss
+
+            model.backward(batch_loss_derivative)
+            model.step()
+
+            #if idx / args.batch_size % args.display_interval == 0:
+            #    print('Train Epoch: {} [{}/{}]\tLoss: {:0.6f}'.format(
+            #        epoch, idx, len(X_train), loss))
 
         correct = 0
         total = 0
@@ -39,7 +70,7 @@ def train(args, model, dataset, test_data):
             labels = y_train[idx]
             image = image.reshape(784, 1)
             labels = labels.reshape(10, 1)
-            output = model(image)
+            output = model(image, no_grad=True)
 
             prediction = np.argmax(output)
             true = np.argmax(labels)
@@ -47,8 +78,9 @@ def train(args, model, dataset, test_data):
             correct += (prediction == true)
             total += 1
 
+        num_batches = len(X_train) / args.batch_size
         test(args, model, test_data)
-        print('Epoch {} Finished with Total Loss : {}, Accuracy {:.2f}'.format(epoch, epoch_loss, correct/total))
+        print('Epoch {} Finished with Loss : {}, Accuracy {:.2f}'.format(epoch, epoch_loss/num_batches, correct/total))
 
 
 def test(args, model, dataset):
@@ -61,7 +93,7 @@ def test(args, model, dataset):
         labels = y_test[idx]
         image = image.reshape(784, 1)
         labels = labels.reshape(10, 1)
-        output = model(image)
+        output = model(image, no_grad=True)
 
         prediction = np.argmax(output)
         true = np.argmax(labels)

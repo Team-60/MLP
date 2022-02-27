@@ -10,21 +10,21 @@ class NN:
     def __init__(self):
         self.layers = []
 
-    def __call__(self, x):
+    def __call__(self, x, no_grad=False):
         return self.forward(x)
 
     def add_layers(self, *args):
         for arg in args:
             self.layers.append(arg)
 
-    def add_optimizer(optim, optim_derivative):
-        self.optim = optim
-        self.optim_derivative = optim_derivative
+    def add_optimizer(self, optimizer, opt_type):
+        for layer in self.layers:
+            layer.add_optimizer(optimizer, opt_type)
 
-    def forward(self, x):
+    def forward(self, x, no_grad=False):
         _x = deepcopy(x)
         for layer in self.layers:
-            _x = layer.forward(_x)
+            _x = layer.forward(_x, no_grad)
         return _x
 
     def backward(self, error):
@@ -33,9 +33,9 @@ class NN:
             _error = layer.backward(_error)
         return _error
 
-    def step(self, optimizer):
+    def step(self):
         for layer in self.layers:
-            layer.step(optimizer)
+            layer.step()
 
 if __name__ == "__main__":
 
