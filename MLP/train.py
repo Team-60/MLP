@@ -3,14 +3,15 @@ from NN import NN
 import Loss
 import Optim
 import Loss
+import matplotlib.pyplot as plt
 
 def train(args, model, dataset, test_data):
 
     np.random.seed(42)
     X_train, y_train = dataset
 
-    #optimizer = Optim.SGD(learning_rate=args.learning_rate)
-    #model.add_optimizer(optimizer, 'SGD')
+    optimizer = Optim.SGD(learning_rate=args.learning_rate)
+    model.add_optimizer(optimizer, 'SGD')
 
     #optimizer = Optim.NAG(learning_rate=args.learning_rate, beta=0.9)
     #model.add_optimizer(optimizer, 'NAG')
@@ -21,8 +22,13 @@ def train(args, model, dataset, test_data):
     #optimizer = Optim.RMSProp(learning_rate=args.learning_rate, lamda=0.9)
     #model.add_optimizer(optimizer, 'RMSProp')
 
-    optimizer = Optim.Adam(learning_rate=args.learning_rate, beta=0.9, lamda=0.9)
-    model.add_optimizer(optimizer, 'Adam')
+    #optimizer = Optim.Adam(learning_rate=args.learning_rate, beta=0.9, lamda=0.9)
+    #model.add_optimizer(optimizer, 'Adam')
+
+    epochs = []
+    losses = []
+    train_accuracy = []
+    test_accuracy = []
 
     for epoch in range(args.num_epochs):
         epoch_loss = 0
@@ -79,8 +85,21 @@ def train(args, model, dataset, test_data):
             total += 1
 
         num_batches = len(X_train) / args.batch_size
-        test(args, model, test_data)
+        test_acc = test(args, model, test_data)
         print('Epoch {} Finished with Loss : {}, Accuracy {:.2f}'.format(epoch, epoch_loss/num_batches, correct/total))
+
+        epochs.append(epoch)
+        losses.append(epoch_loss/num_batches)
+        train_accuracy.append(correct/total)
+        test_accuracy.append(test_acc)
+
+    plot(epochs, epoch_loss, train_accuracy, test_accuracy)
+
+def plot(epochs, epoch_loss, train_accuracy, test_accuracy):
+    plt.plot(epochs, train_accuracy, label='train')
+    plt.plot(epochs, test_accuracy, label='test')
+    plt.legend()
+    plt.show()
 
 
 def test(args, model, dataset):
@@ -102,4 +121,5 @@ def test(args, model, dataset):
         total += 1
 
     print('Finished Test Accuracy {:.2f}'.format(correct/total))
+    return correct/total
 

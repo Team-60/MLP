@@ -13,7 +13,7 @@ def cross_entropy(y, output):
     '''
         L(y, ŷ) = −∑ylog(ŷ).
     '''
-    l_sum = np.sum(np.multiply(y.T, np.log(output)))
+    l_sum = np.sum(np.multiply(y.T, np.log(output + 1e-15)))
     m = y.shape[0]
     l = -(1./m) * l_sum
     return l

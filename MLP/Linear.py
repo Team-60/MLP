@@ -18,7 +18,9 @@ class Linear:
         self.opt_type = opt_type
         self.optimizer = optimizer
 
-        if opt_type == 'SGD_momentum':
+        if opt_type == 'SGD':
+            pass
+        elif opt_type == 'SGD_momentum':
             self.momentum_W = 0
             self.momentum_b = 0
         elif self.opt_type == 'NAG':
