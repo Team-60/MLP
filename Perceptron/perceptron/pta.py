@@ -10,7 +10,9 @@ np.random.seed(7)
 
 
 class WeightUpdateRepeat(Exception):
-    def __init__(self, w):
+    def __init__(self, iter, prev_weights, w):
+        print("- Repeating iter", iter)
+        print("- Previous weights", *prev_weights)
         super().__init__(f"Repeated weights found! Non linearly seperable data exists. Weight vector {w}")
 
 
@@ -26,7 +28,7 @@ class PTA:
         self.epsilon = epsilon
 
         self._incorrect_sample = None
-        self._previous_perceptron_weights = []
+        self._previous_perceptron_weights = [np.copy(self.perceptron.w)]
 
     def check_incorrect_sample(self) -> bool:
         for i in range(self.X.shape[0]):
@@ -44,9 +46,9 @@ class PTA:
         self._check_repeating_weights(current_w)
 
     def _check_repeating_weights(self, new_w: np.array):
-        for prev_w in self._previous_perceptron_weights:
+        for idx, prev_w in enumerate(self._previous_perceptron_weights):
             change_w = np.sqrt(((prev_w - new_w) ** 2).sum())
             if change_w < self.epsilon:
-                raise WeightUpdateRepeat(new_w)
+                raise WeightUpdateRepeat(idx, self._previous_perceptron_weights, new_w)
 
         self._previous_perceptron_weights.append(new_w)

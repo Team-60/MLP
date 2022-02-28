@@ -2,11 +2,11 @@ import numpy as np
 from perceptron.pta import PTA
 import matplotlib.pyplot as plt
 
-OUTPUT_DIR = "outputs"
+OUTPUT_DIR = "outputs/NOT"
 
 # INPUTS
-X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-y = np.array([0, 0, 0, 1])
+X = np.array([[0, 0], [1, 0]])
+y = np.array([1, 0])
 
 
 def save_plot(iter, w):
@@ -19,10 +19,11 @@ def save_plot(iter, w):
     for s in negatives:
         plt.scatter(s[0], s[1], color="r")
 
-    lin_x = np.linspace(-0.01, 1.01, 100)
     if w[1] == 0:
-        lin_y = np.zeros_like(lin_x)
+        lin_x = np.zeros(100)
+        lin_y = np.linspace(-0.01, 1.01, 100)
     else:
+        lin_x = np.linspace(-0.01, 1.01, 100)
         lin_y = -1 * (w[0] * lin_x + w[2]) / w[1]
 
     plt.plot(lin_x, lin_y, color="b")
@@ -30,19 +31,20 @@ def save_plot(iter, w):
     plt.savefig(f"{OUTPUT_DIR}/{iter}.png")
 
 
-pta_algo = PTA(X, y, 2, random_init=False)
+pta_algo = PTA(X, y, 2)
 
 iters = 0
+save_plot(iters, pta_algo.perceptron.w)
 while pta_algo.check_incorrect_sample():
-    save_plot(iters, pta_algo.perceptron.w)
     try:
+        iters += 1
         pta_algo.update_weights()
     except:
         print("CURRENT STEP", iters)
         raise
-    iters += 1
+    finally:
+        save_plot(iters, pta_algo.perceptron.w)
 
-save_plot(iters, pta_algo.perceptron.w)
 
 print(f"* Convergence in {iters} iters")
 print(f"* Final weights: {pta_algo.perceptron.w}")
