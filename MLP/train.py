@@ -75,6 +75,8 @@ def train(args, model, dataset, test_data):
 
 
 def plot(epochs, losses, train_accuracy, test_accuracy, args):
+    plt.figure()
+
     plt.plot(epochs, train_accuracy, label='train')
     plt.plot(epochs, test_accuracy, label='test')
     plt.legend()
@@ -84,6 +86,7 @@ def plot(epochs, losses, train_accuracy, test_accuracy, args):
     plt.plot(epochs, losses, label='loss')
     plt.legend()
     plt.savefig('./models/{}/plot-loss.png'.format(args.experiment_name))
+    plt.figure()
 
 def test(args, model, dataset):
 
