@@ -56,11 +56,13 @@ if __name__ == "__main__":
 
     layers_config = [[784, 10], [784, 64, 10], [784, 256, 64, 10]]
     activations = ['relu', 'sigmoid', 'tanh']
-    learning_rate = [1e-1, 0.05, 1e-2, 1e-3, 1e-4]
+    learning_rate = [1e-1, 1e-2, 1e-3]
 
     for layers_shape in layers_config:
         for activation in activations:
             for lrate in learning_rate:
+                if activation == 'relu' and len(layers_shape) == 2:
+                    continue
 
                 print('===============================================')
                 print('Config => Layers = {}, Activation = {}, Learnig_rate = {}'.format(layers_shape, activation, lrate))

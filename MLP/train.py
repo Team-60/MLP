@@ -6,9 +6,18 @@ import Loss
 import matplotlib.pyplot as plt
 import pickle
 import os
+import sys
+
+def my_print(fileName, s):
+    with open(fileName, "a+") as fp:
+        fp.write(s)
+        fp.write('\n')
+    print(s)
+
 
 def train(args, model, dataset, test_data):
-
+    
+    os.makedirs('./models/{}'.format(args.experiment_name), exist_ok=True)
     X_train, y_train = dataset
 
     optimizer = Optim.SGD(learning_rate=args.learning_rate)
@@ -60,14 +69,13 @@ def train(args, model, dataset, test_data):
 
         num_batches = len(X_train) / args.batch_size
         test_acc = test(args, model, test_data)
-        print('Epoch {} Finished with Loss : {}, Train Accuracy {:.5f}, Test Accuracy {:.5f}'.format(epoch, epoch_loss/num_batches, accuracy, test_acc))
+        my_print('./models/{}/model.log'.format(args.experiment_name), 'Epoch {} Finished with Loss : {}, Train Accuracy {:.5f}, Test Accuracy {:.5f}'.format(epoch, epoch_loss/num_batches, accuracy, test_acc))
 
         epochs.append(epoch)
         losses.append(epoch_loss/num_batches)
         train_accuracy.append(accuracy)
         test_accuracy.append(test_acc)
 
-    os.makedirs('./models/{}'.format(args.experiment_name), exist_ok=True)
     with open('./models/{}/model.pickle'.format(args.experiment_name), 'wb')as handle:
         pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
