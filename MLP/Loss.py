@@ -19,7 +19,4 @@ def cross_entropy(y, output):
     return l
 
 def cross_entropy_derivative(y_true, y_pred):
-    #print(y_pred * (1 - y_pred + 0.0001))
-    #print(y_true)
-    #sleep(1)
     return (y_pred - y_true)

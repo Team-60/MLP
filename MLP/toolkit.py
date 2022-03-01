@@ -73,9 +73,9 @@ if __name__ == "__main__":
                 for i in range(len(layers_shape) - 2):
                     if activation == 'relu':
                         actLayer = ActivationLayer(ActivationFn.relu, ActivationFn.relu_derivative)
-                    elif shape == 'sigmoid':
+                    elif activation == 'sigmoid':
                         actLayer = ActivationLayer(ActivationFn.sigmoid, ActivationFn.sigmoid_derivative)
-                    elif shape == 'tanh':
+                    elif activation == 'tanh':
                         actLayer = ActivationLayer(ActivationFn.tanh, ActivationFn.tanh_derivative)
 
                     layers.append(Linear(layers_shape[i], layers_shape[i + 1]))
