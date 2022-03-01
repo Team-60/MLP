@@ -63,19 +63,19 @@ if __name__ == "__main__":
             for lrate in learning_rate:
 
                 print('===============================================')
-                print('Config => Layers = {}, Activation = {}, Learnig_rate = {}'.format(layers_config, activation, lrate))
+                print('Config => Layers = {}, Activation = {}, Learnig_rate = {}'.format(layers_shape, activation, lrate))
                 print("\n\n")
 
                 args.learning_rate = lrate
-                args.experiment_name = 'Layers-{}-Activation-{}-Rate-{}'.format(layers_config, activation, lrate)
+                args.experiment_name = 'Layers-{}-Activation-{}-Rate-{}'.format(layers_shape, activation, lrate)
 
                 layers = []
                 for i in range(len(layers_shape) - 2):
                     if activation == 'relu':
                         actLayer = ActivationLayer(ActivationFn.relu, ActivationFn.relu_derivative)
-                    elif shape == 'sigmoid':
+                    elif activation == 'sigmoid':
                         actLayer = ActivationLayer(ActivationFn.sigmoid, ActivationFn.sigmoid_derivative)
-                    elif shape == 'tanh':
+                    elif activation == 'tanh':
                         actLayer = ActivationLayer(ActivationFn.tanh, ActivationFn.tanh_derivative)
 
                     layers.append(Linear(layers_shape[i], layers_shape[i + 1]))
