@@ -9,8 +9,11 @@ class Linear:
         self.last_input = 0
         self.count = 0
 
-        self.W = np.random.rand(self.in_features, self.out_features)
-        self.b = np.random.rand(out_features, 1)
+        xavier_term = np.sqrt(6 / (self.in_features + self.out_features))
+        self.W = np.random.uniform(-xavier_term, xavier_term, size=(in_features, out_features))
+        self.b = np.random.uniform(-xavier_term, xavier_term, size=(out_features, 1))
+        #self.W = np.random.rand(self.in_features, self.out_features)
+        #self.b = np.random.rand(out_features, 1)
 
     
     def add_optimizer(self, optimizer, opt_type):
@@ -43,12 +46,11 @@ class Linear:
 
 
     def forward(self, layer_input, no_grad=False):
-        # shapes : (in_features, 1)  -> (out_features, 1)
+        # shapes : (in_features, batch_size)  -> (out_features, batch_size)
         if no_grad == False:
-            self.last_input += layer_input
-            self.count += 1
+            self.last_input = layer_input
 
-        if self.opt_type == 'NAG' and no_grad == False:
+        if (self.opt_type == 'NAG') and (no_grad == False):
             self.d_W = self.W + self.momentum_W
             self.d_b = self.b + self.momentum_b
             self.d_output = (self.d_W.T @ layer_input) + self.d_b
@@ -58,17 +60,17 @@ class Linear:
         return output
     
     def backward(self, nextl_gradients):
-        # shapes : (out_features, 1) -> (input_features, 1)
-        self.weight_grads = self.last_input @ nextl_gradients.T
-        self.bias_grads = deepcopy(nextl_gradients)
+        # shapes : (out_features, batch_size) -> (input_features, 1)
+        # last_input = (in_features, batch_size)
+        # self.weight_grads = (in_features, out_features)
+        self.weight_grads = (self.last_input @ nextl_gradients.T) / nextl_gradients.shape[1]
+        self.bias_grads = np.mean(nextl_gradients, axis=1).reshape(-1, 1)
 
-        self.weight_grads /= self.count
-        self.bias_grads /= self.count
+        assert(self.weight_grads.shape == (self.in_features, self.out_features))
+        assert(self.bias_grads.shape == (self.out_features, 1))
 
         gradients_to_prop = self.W @ nextl_gradients
-
-        self.last_input = 0
-        self.count = 0
+        # gradients_to_prop = (in_features batch_sizes)
 
         if self.opt_type == 'AdaGrad':
             self.G_W += self.weight_grads ** 2 

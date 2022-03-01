@@ -4,10 +4,11 @@ import Loss
 import Optim
 import Loss
 import matplotlib.pyplot as plt
+import pickle
+import os
 
 def train(args, model, dataset, test_data):
 
-    np.random.seed(42)
     X_train, y_train = dataset
 
     optimizer = Optim.SGD(learning_rate=args.learning_rate)
@@ -30,6 +31,7 @@ def train(args, model, dataset, test_data):
     train_accuracy = []
     test_accuracy = []
 
+
     for epoch in range(args.num_epochs):
         epoch_loss = 0
 
@@ -39,87 +41,57 @@ def train(args, model, dataset, test_data):
 
         for st_idx in range(0, len(X_train), args.batch_size):
 
-            batch_loss = 0
-            batch_loss_derivative = 0
-            for idx in range(st_idx, min(len(X_train), st_idx + args.batch_size)):
+            x_batch = x_train_shuffled[st_idx : min(st_idx + args.batch_size, len(x_train_shuffled))].T
+            y_batch = y_train_shuffled[st_idx : min(st_idx + args.batch_size, len(y_train_shuffled))].T
 
-                labels = y_train_shuffled[idx]
-                image = x_train_shuffled[idx]
+            output = model(x_batch)
 
-                image = image.reshape(784, 1)
-                labels = labels.reshape(10, 1)
+            loss = Loss.cross_entropy(y_batch, output) / args.batch_size
+            loss_derivative = Loss.cross_entropy_derivative(y_batch, output)
 
-                output = model(image)
+            epoch_loss += loss
 
-                loss = Loss.cross_entropy(labels, output)
-                batch_loss += loss
-            
-                loss_derivative = Loss.cross_entropy_derivative(labels, output)
-                batch_loss_derivative += loss_derivative
-
-            batch_loss /= args.batch_size
-            batch_loss_derivative /= args.batch_size
-
-            epoch_loss += batch_loss
-
-            model.backward(batch_loss_derivative)
+            model.backward(loss_derivative)
             model.step()
 
-            #if idx / args.batch_size % args.display_interval == 0:
-            #    print('Train Epoch: {} [{}/{}]\tLoss: {:0.6f}'.format(
-            #        epoch, idx, len(X_train), loss))
-
-        correct = 0
-        total = 0
-        for idx, image in enumerate(X_train):
-
-            labels = y_train[idx]
-            image = image.reshape(784, 1)
-            labels = labels.reshape(10, 1)
-            output = model(image, no_grad=True)
-
-            prediction = np.argmax(output)
-            true = np.argmax(labels)
-
-            correct += (prediction == true)
-            total += 1
+        outputs = np.argmax(model(x_train_shuffled.T, no_grad=True).T, axis=1)
+        y_true = np.argmax(y_train_shuffled, axis=1)
+        accuracy = np.sum(y_true == outputs)/args.batch_size
 
         num_batches = len(X_train) / args.batch_size
         test_acc = test(args, model, test_data)
-        print('Epoch {} Finished with Loss : {}, Accuracy {:.2f}'.format(epoch, epoch_loss/num_batches, correct/total))
+        print('Epoch {} Finished with Loss : {}, Train Accuracy {:.5f}, Test Accuracy {:.5f}'.format(epoch, epoch_loss/num_batches, accuracy, test_acc))
 
         epochs.append(epoch)
         losses.append(epoch_loss/num_batches)
-        train_accuracy.append(correct/total)
+        train_accuracy.append(accuracy)
         test_accuracy.append(test_acc)
 
-    plot(epochs, epoch_loss, train_accuracy, test_accuracy)
+    os.makedirs('./models/{}'.format(args.experiment_name), exist_ok=True)
+    with open('./models/{}/model.pickle'.format(args.experiment_name), 'wb')as handle:
+        pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-def plot(epochs, epoch_loss, train_accuracy, test_accuracy):
+    plot(epochs, losses, train_accuracy, test_accuracy, args)
+
+
+def plot(epochs, losses, train_accuracy, test_accuracy, args):
     plt.plot(epochs, train_accuracy, label='train')
     plt.plot(epochs, test_accuracy, label='test')
     plt.legend()
-    plt.show()
+    plt.savefig('./models/{}/plot-accuracy.png'.format(args.experiment_name))
+    plt.figure()
 
+    plt.plot(epochs, losses, label='loss')
+    plt.legend()
+    plt.savefig('./models/{}/plot-loss.png'.format(args.experiment_name))
 
 def test(args, model, dataset):
 
     X_test, y_test = dataset
-    correct = 0
-    total = 0
-    for idx, image in enumerate(X_test):
 
-        labels = y_test[idx]
-        image = image.reshape(784, 1)
-        labels = labels.reshape(10, 1)
-        output = model(image, no_grad=True)
+    outputs = np.argmax(model(X_test.T, no_grad=True).T, axis=1)
+    y_true = np.argmax(y_test, axis=1)
+    accuracy = np.sum(y_true == outputs)/X_test.shape[0]
 
-        prediction = np.argmax(output)
-        true = np.argmax(labels)
-
-        correct += (prediction == true)
-        total += 1
-
-    print('Finished Test Accuracy {:.2f}'.format(correct/total))
-    return correct/total
+    return accuracy
 

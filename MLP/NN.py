@@ -11,7 +11,7 @@ class NN:
         self.layers = []
 
     def __call__(self, x, no_grad=False):
-        return self.forward(x)
+        return self.forward(x, no_grad)
 
     def add_layers(self, *args):
         for arg in args:
