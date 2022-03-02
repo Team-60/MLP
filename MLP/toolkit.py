@@ -10,8 +10,8 @@ import idx2numpy
 from ActivationLayer import ActivationLayer
 
 parser = argparse.ArgumentParser(description='Fashion-MNIST')
-parser.add_argument('--batch-size', type=int, default=60000, help='batch size for training (default: 64)')
-parser.add_argument('--num-epochs', type=int, default=500, help='number of epochs for training (default: 100)')
+parser.add_argument('--batch-size', type=int, default=64, help='batch size for training (default: 64)')
+parser.add_argument('--num-epochs', type=int, default=100, help='number of epochs for training (default: 100)')
 parser.add_argument('--momentum', type=int, default=0.9, help='momentum value of optimizer training (default: 0.9)')
 parser.add_argument('--learning-rate', type=int, default=0.05, help='learning rate of optimizer training (default: 0.001)')
 parser.add_argument('--display-interval', type=int, default=1000, help='interval for printing while training each epoch')
@@ -54,42 +54,43 @@ if __name__ == "__main__":
     X_test = normalize(X_test)
 
 
-    layers_config = [[784, 10], [784, 64, 10], [784, 256, 64, 10]]
-    activations = ['relu', 'sigmoid', 'tanh']
-    learning_rate = [1e-1, 1e-2, 1e-3]
+    #layers_config = [[784, 10], [784, 64, 10], [784, 256, 64, 10]]
+    #activations = ['relu', 'sigmoid', 'tanh']
+    #learning_rate = [1e-1, 1e-2, 1e-3]
 
-    for layers_shape in layers_config:
-        for activation in activations:
-            for lrate in learning_rate:
-                if activation == 'relu' and len(layers_shape) == 2:
-                    continue
+    layers_shape = [784, 64, 10]
+    activation = 'relu'
+    lrate = 0.0001
+    optimizers = ['SGD_momentum'] 
 
-                print('===============================================')
-                print('Config => Layers = {}, Activation = {}, Learnig_rate = {}'.format(layers_shape, activation, lrate))
-                print("\n\n")
+    for optim_type in optimizers:
 
-                args.learning_rate = lrate
-                args.experiment_name = 'Layers-{}-Activation-{}-Rate-{}'.format(layers_shape, activation, lrate)
+        print('===============================================')
+        print('Config => Layers = {}, Activation = {}, Learnig_rate = {}, optimizer = {}'.format(layers_shape, activation, lrate, optim_type))
+        print("\n\n")
 
-                layers = []
-                for i in range(len(layers_shape) - 2):
-                    if activation == 'relu':
-                        actLayer = ActivationLayer(ActivationFn.relu, ActivationFn.relu_derivative)
-                    elif activation == 'sigmoid':
-                        actLayer = ActivationLayer(ActivationFn.sigmoid, ActivationFn.sigmoid_derivative)
-                    elif activation == 'tanh':
-                        actLayer = ActivationLayer(ActivationFn.tanh, ActivationFn.tanh_derivative)
+        args.learning_rate = lrate
+        args.experiment_name = 'Layers-{}-Activation-{}-Rate-{}-Optimizer-{}'.format(layers_shape, activation, lrate, optim_type)
 
-                    layers.append(Linear(layers_shape[i], layers_shape[i + 1]))
-                    layers.append(actLayer)
+        layers = []
+        for i in range(len(layers_shape) - 2):
+            if activation == 'relu':
+                actLayer = ActivationLayer(ActivationFn.relu, ActivationFn.relu_derivative)
+            elif activation == 'sigmoid':
+                actLayer = ActivationLayer(ActivationFn.sigmoid, ActivationFn.sigmoid_derivative)
+            elif activation == 'tanh':
+                actLayer = ActivationLayer(ActivationFn.tanh, ActivationFn.tanh_derivative)
 
-                le = len(layers_shape)
-                layers.append(Linear(layers_shape[le - 2], layers_shape[le - 1]))
-                actLayer = ActivationLayer(ActivationFn.softmax, ActivationFn.softmax_derivative)
-                layers.append(actLayer)
+            layers.append(Linear(layers_shape[i], layers_shape[i + 1]))
+            layers.append(actLayer)
 
-                model = NN()
-                model.add_layers(*layers)
+        le = len(layers_shape)
+        layers.append(Linear(layers_shape[le - 2], layers_shape[le - 1]))
+        actLayer = ActivationLayer(ActivationFn.softmax, ActivationFn.softmax_derivative)
+        layers.append(actLayer)
 
-                train(args, model, (X_train, y_train), (X_test, y_test))
+        model = NN()
+        model.add_layers(*layers)
+
+        train(args, model, (X_train, y_train), (X_test, y_test), optim_type)
 
